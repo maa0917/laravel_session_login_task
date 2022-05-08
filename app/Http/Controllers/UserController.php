@@ -3,13 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
@@ -44,25 +43,23 @@ class UserController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
      * @param User $user
-     * @return Response
+     * @return Application|Factory|View
      */
     public function edit(User $user)
     {
-        //
+        return view('users.edit', compact('user'));
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
+     * @param UpdateUserRequest $request
      * @param User $user
-     * @return Response
+     * @return RedirectResponse
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
-        //
+        $user->update($request->all());
+
+        return redirect()->route('users.show', $user)->with('notice', 'アカウントを更新しました');
     }
 }

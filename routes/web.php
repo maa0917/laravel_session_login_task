@@ -9,7 +9,7 @@ Route::get('/', [TaskController::class, 'index']);
 Route::resource('tasks', TaskController::class);
 
 Route::resource('users', UserController::class)
-    ->only('create', 'store', 'show');
+    ->except('index');
 
 Route::resource('sessions', SessionController::class)
     ->only('create', 'store', 'destroy');

@@ -5,6 +5,6 @@
 
     <p><strong>メールアドレス: </strong>{{ $user->email }}</p>
 
-    <a id="edit-user" href="">編集</a> |
+    <a id="edit-user" href="{{ route('users.edit', $user) }}">編集</a> |
     <a id="destroy-user" href="">削除</a>
 </x-layout>
