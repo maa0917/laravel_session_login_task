@@ -9,6 +9,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
@@ -61,5 +62,23 @@ class UserController extends Controller
         $user->update($request->all());
 
         return redirect()->route('users.show', $user)->with('notice', 'アカウントを更新しました');
+    }
+
+    /**
+     * @param User $user
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function destroy(User $user, Request $request): RedirectResponse
+    {
+        $user->delete();
+
+        Auth::logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect()->route('sessions.create');
     }
 }
