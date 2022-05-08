@@ -10,6 +10,8 @@
 <body>
 @if (auth()->check())
     <ul>
+        <li><a id="tasks-index" href="{{ route('tasks.index') }}">タスク一覧</a></li>
+        <li><a id="new-task" href="{{ route('tasks.create') }}">タスクを登録する</a></li>
         <li><a id="my-account" href="{{ route('users.show', auth()->user()) }}">アカウント</a></li>
         <li>
             <form action="{{ route('sessions.destroy', auth()->user()) }}" method="post" name="session_delete">
