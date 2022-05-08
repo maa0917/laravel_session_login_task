@@ -35,7 +35,7 @@ class SessionController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            return redirect()->route('tasks.index');
+            return redirect()->route('tasks.index')->with('notice', 'ログインしました');
         } else {
             return back()
                 ->withErrors(['message' => 'メールアドレスまたはパスワードに誤りがあります'])
