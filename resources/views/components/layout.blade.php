@@ -8,9 +8,22 @@
     <title>laravel session login task</title>
 </head>
 <body>
-<ul>
-    <li><a id="sign-up" href="{{ route('users.create') }}">アカウント登録</a></li>
-</ul>
+@if (auth()->check())
+    <ul>
+        <li>
+            <form action="{{ route('sessions.destroy', auth()->user()) }}" method="post" name="session_delete">
+                @csrf
+                @method('delete')
+
+                <a id="sign-out" href="javascript:session_delete.submit()">ログアウト</a>
+            </form>
+        </li>
+    </ul>
+@else
+    <ul>
+        <li><a id="sign-up" href="{{ route('users.create') }}">アカウント登録</a></li>
+    </ul>
+@endif
 
 {{session('notice')}}
 
