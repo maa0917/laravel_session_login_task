@@ -10,6 +10,7 @@
 <body>
 @if (auth()->check())
     <ul>
+        <li><a id="my-account" href="{{ route('users.show', auth()->user()) }}">アカウント</a></li>
         <li>
             <form action="{{ route('sessions.destroy', auth()->user()) }}" method="post" name="session_delete">
                 @csrf
