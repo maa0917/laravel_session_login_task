@@ -22,6 +22,7 @@
 @else
     <ul>
         <li><a id="sign-up" href="{{ route('users.create') }}">アカウント登録</a></li>
+        <li><a id="sign-in" href="{{ route('sessions.create') }}">ログイン</a></li>
     </ul>
 @endif
 
