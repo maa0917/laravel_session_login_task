@@ -8,6 +8,10 @@
     <title>laravel session login task</title>
 </head>
 <body>
+<ul>
+    <li><a id="sign-up" href="{{ route('users.create') }}">アカウント登録</a></li>
+</ul>
+
 {{session('notice')}}
 
 {{ $slot }}
