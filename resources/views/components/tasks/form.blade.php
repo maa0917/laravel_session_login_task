@@ -15,17 +15,17 @@
     @endif
 
     <p>
-        <label for="title">タイトル</label>
+        <label id="title-label" for="title">タイトル</label>
         <br>
         <input id="title" class="field" type="text" name="title" value="{{ old('title', $task->title ?? '') }}">
     </p>
 
     <p>
-        <label for="content">内容</label>
+        <label id="content-label" for="content">内容</label>
         <br>
         <textarea id="content" class="field" name="content" cols="30"
                   rows="10">{{ old('content', $task->content ?? '') }}</textarea>
     </p>
 
-     <button>{{ $submit }}</button>
+     <button id="submit-button">{{ $submit }}</button>
 </form>

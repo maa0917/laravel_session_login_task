@@ -15,6 +15,7 @@ class BrowserTest extends DuskTestCase
 
     private $user;
     private $secondUser;
+    private $task;
 
     protected function setUp(): void
     {
@@ -24,16 +25,22 @@ class BrowserTest extends DuskTestCase
             $browser->driver->manage()->deleteAllCookies();
         }
 
-        $this->user = User::create([
+        $this->user = User::factory()->create([
             'name' => 'user_name',
             'email' => 'user@email.com',
             'password' => 'password',
         ]);
 
-        $this->secondUser = User::create([
+        $this->secondUser = User::factory()->create([
             'name' => 'second_user_name',
             'email' => 'second_user@email.com',
             'password' => 'password',
+        ]);
+
+        $this->task = Task::factory()->create([
+            'title' => 'task_title',
+            'content' => 'task_content',
+            'user_id' => $this->user->id,
         ]);
     }
 
@@ -824,12 +831,7 @@ class BrowserTest extends DuskTestCase
     public function ログインをせずにログイン画面とアカウント登録画面以外にアクセスした場合、ログインページに遷移させ「ログインしてください」というフラッシュメッセージを表示させること、タスク詳細画面にアクセスした場合()
     {
         $this->browse(function (Browser $browser) {
-            $task = Task::factory()->create([
-                'title' => 'task_title',
-                'content' => 'task_content',
-                'user_id' => $this->user->id,
-            ]);
-            $browser->visitRoute('tasks.show', $task);
+            $browser->visitRoute('tasks.show', $this->task);
 
             $browser->assertPathIs('/sessions/create');
             $browser->assertSee('ログインしてください');
@@ -844,12 +846,7 @@ class BrowserTest extends DuskTestCase
     public function ログインをせずにログイン画面とアカウント登録画面以外にアクセスした場合、ログインページに遷移させ「ログインしてください」というフラッシュメッセージを表示させること、タスク編集画面にアクセスした場合()
     {
         $this->browse(function (Browser $browser) {
-            $task = Task::factory()->create([
-                'title' => 'task_title',
-                'content' => 'task_content',
-                'user_id' => $this->user->id,
-            ]);
-            $browser->visitRoute('tasks.edit', $task);
+            $browser->visitRoute('tasks.edit', $this->task);
 
             $browser->assertPathIs('/sessions/create');
             $browser->assertSee('ログインしてください');
@@ -910,5 +907,506 @@ class BrowserTest extends DuskTestCase
         });
     }
 
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。画面遷移、元々のパスのプレフィックスが利用できること()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
 
+            $browser->visitRoute('tasks.index');
+            $browser->assertPathIs("/tasks");
+
+            $browser->visitRoute('tasks.create');
+            $browser->assertPathIs("/tasks/create");
+
+            $browser->visitRoute('tasks.show', $this->user);
+            $browser->assertPathIs("/tasks/{$this->user->id}");
+
+            $browser->visitRoute('tasks.edit', $this->user);
+            $browser->assertPathIs("/tasks/{$this->user->id}/edit");
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。画面設計、各画面に元々の文字やリンク、ボタンが表示されること、グローバルナビゲーション()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('/');
+
+            $browser->assertSeeLink('タスク一覧');
+            $browser->assertSeeLink('タスクを登録する');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。画面設計、各画面に元々の文字やリンク、ボタンが表示されること、タスク一覧画面()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.index');
+
+            $browser->assertSee('タスク一覧ページ');
+            $browser->assertSee($this->task->title);
+            $browser->assertSee($this->task->content);
+            $browser->assertSeeLink('詳細');
+            $browser->assertSeeLink('編集');
+            $browser->assertSeeLink('削除');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。画面設計、各画面に元々の文字やリンク、ボタンが表示されること、タスク登録画面()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.create');
+
+            $browser->assertSee('タスク登録ページ');
+            $browser->assertSeeIn('#title-label', 'タイトル');
+            $browser->assertSeeIn('#content-label', '内容');
+            $browser->assertSeeIn('#submit-button', '登録する');
+            $browser->assertSeeLink('戻る');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。画面設計、各画面に元々の文字やリンク、ボタンが表示されること、タスク詳細画面()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.show', $this->task);
+
+            $browser->assertSee('タスク詳細ページ');
+            $browser->assertSee($this->task->title);
+            $browser->assertSee($this->task->content);
+            $browser->assertSeeLink('編集');
+            $browser->assertSeeLink('戻る');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。画面設計、各画面に元々の文字やリンク、ボタンが表示されること、タスク編集画面()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.edit', $this->task);
+
+            $browser->assertSee('タスク編集ページ');
+            $browser->assertSeeIn('#title-label', 'タイトル');
+            $browser->assertSeeIn('#content-label', '内容');
+            $browser->assertSeeIn('#submit-button','更新する');
+            $browser->assertSeeLink('戻る');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。画面遷移、正常に画面が遷移すること、グローバルナビゲーション()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.index');
+
+            $browser->clickLink('タスクを登録する');
+            $browser->assertSee('タスク登録ページ');
+
+            $browser->clickLink('タスク一覧');
+            $browser->assertSee('タスク一覧ページ');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。画面遷移、正常に画面が遷移すること、タスクを登録した場合、ページタイトルに「タスク一覧ページ」が表示される()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.create');
+
+            $browser->value('#title', 'task_title');
+            $browser->value('#content', 'task_content');
+            $browser->press('#submit-button');
+
+            $browser->assertSee('タスク一覧ページ');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。画面遷移、正常に画面が遷移すること、「詳細」をクリックした場合、ページタイトルに「タスク詳細ページ」が表示される()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.index');
+
+            $browser->clickLink('詳細');
+
+            $browser->assertSee('タスク詳細ページ');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。画面遷移、正常に画面が遷移すること、「編集」をクリックした場合、ページタイトルに「タスク編集ページ」が表示される()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.index');
+
+            $browser->clickLink('編集');
+
+            $browser->assertSee('タスク編集ページ');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。画面遷移、正常に画面が遷移すること、「更新する」をクリックした場合、ページタイトルに「タスク一覧ページ」が表示される()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.edit', $this->task);
+
+            $browser->press('#submit-button');
+
+            $browser->assertSee('タスク一覧ページ');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。画面遷移、正常に画面が遷移すること、「削除」をクリックした場合、ページタイトルに「タスク一覧ページ」が表示される()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.index');
+
+            $browser->clickLink('削除');
+            $browser->acceptDialog();
+
+            $browser->assertSee('タスク一覧ページ');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。画面遷移、正常に画面が遷移すること、登録画面の「戻る」をクリックした場合、ページタイトルに「タスク一覧ページ」が表示される()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.create');
+
+            $browser->clickLink('戻る');
+
+            $browser->assertSee('タスク一覧ページ');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。画面遷移、正常に画面が遷移すること、詳細画面の「戻る」をクリックした場合、ページタイトルに「タスク一覧ページ」が表示される()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.show', $this->task);
+
+            $browser->clickLink('戻る');
+
+            $browser->assertSee('タスク一覧ページ');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。画面遷移、正常に画面が遷移すること、編集画面の「戻る」をクリックした場合、ページタイトルに「タスク一覧ページ」が表示される()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.edit', $this->task);
+
+            $browser->clickLink('戻る');
+
+            $browser->assertSee('タスク一覧ページ');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。画面遷移、正常に画面が遷移すること、タスクの登録に失敗した場合、ページタイトルに「タスク登録ページ」が表示される()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.create');
+
+            $browser->value('#title', '');
+            $browser->value('#content', '');
+            $browser->press('#submit-button');
+
+            $browser->assertSee('タスク登録ページ');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。画面遷移、正常に画面が遷移すること、タスクの編集に失敗した場合、ページタイトルに「タスク編集ページ」が表示される()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.edit', $this->task);
+
+            $browser->value('#title', '');
+            $browser->value('#content', '');
+            $browser->press('#submit-button');
+
+            $browser->assertSee('タスク編集ページ');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。機能要件、確認ダイアログ、タスクを削除するリンクをクリックした際、確認ダイアログに「本当に削除してもよろしいですか？」という文字を表示させること()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.index');
+
+            $browser->clickLink('削除');
+            $browser->assertDialogOpened('本当に削除してもよろしいですか？');
+
+            $browser->dismissDialog();
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。機能要件、バリデーションメッセージ、タスク登録画面、タイトルが未入力の場合、「タイトルを入力してください」というバリデーションメッセージが表示させる()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.create');
+
+            $browser->value('#title', '');
+            $browser->value('#content', '');
+            $browser->press('#submit-button');
+
+            $browser->assertSee('タイトルを入力してください');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。機能要件、バリデーションメッセージ、タスク登録画面、内容が未入力の場合、「内容を入力してください」というバリデーションメッセージが表示させる()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.create');
+
+            $browser->value('#title', '');
+            $browser->value('#content', '');
+            $browser->press('#submit-button');
+
+            $browser->assertSee('内容を入力してください');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。機能要件、バリデーションメッセージ、タスク登録画面、タイトルと内容が未入力の場合、「タイトルを入力してください」と「内容を入力してください」というバリデーションメッセージが表示させる()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.create');
+
+            $browser->value('#title', '');
+            $browser->value('#content', '');
+            $browser->press('#submit-button');
+
+            $browser->assertSee('タイトルを入力してください');
+            $browser->assertSee('内容を入力してください');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。機能要件、バリデーションメッセージ、タスク編集画面、タイトルが未入力の場合、「タイトルを入力してください」というバリデーションメッセージが表示させる()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.edit', $this->task);
+
+            $browser->value('#title', '');
+            $browser->value('#content', '');
+            $browser->press('#submit-button');
+
+            $browser->assertSee('タイトルを入力してください');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。機能要件、バリデーションメッセージ、タスク編集画面、内容が未入力の場合、「内容を入力してください」というバリデーションメッセージが表示させる()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.edit', $this->task);
+
+            $browser->value('#title', '');
+            $browser->value('#content', '');
+            $browser->press('#submit-button');
+
+            $browser->assertSee('内容を入力してください');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。機能要件、バリデーションメッセージ、タスク編集画面、タイトルと内容が未入力の場合、「タイトルを入力してください」と「内容を入力してください」というバリデーションメッセージが表示させる()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.edit', $this->task);
+
+            $browser->value('#title', '');
+            $browser->value('#content', '');
+            $browser->press('#submit-button');
+
+            $browser->assertSee('タイトルを入力してください');
+            $browser->assertSee('内容を入力してください');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。機能要件、フラッシュメッセージ、タスクの登録に成功した場合、「タスクを登録しました」というフラッシュメッセージを表示させること()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.create');
+
+            $browser->value('#title', 'sample title');
+            $browser->value('#content', 'sample content');
+            $browser->press('#submit-button');
+
+            $browser->assertSee('タスクを登録しました');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。機能要件、タスクの更新に成功した場合、「タスクを更新しました」というフラッシュメッセージを表示させること()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.edit', $this->task);
+
+            $browser->value('#title', 'update sample title');
+            $browser->value('#content', 'update sample content');
+            $browser->press('#submit-button');
+
+            $browser->assertSee('タスクを更新しました');
+        });
+    }
+
+    /**
+     * デフォルトで実装されているタスク管理機能が正常に動作すること
+     * @test
+     * @throws Throwable
+     */
+    public function ＊ログイン機能の実装が完了した後、以下の項目をすべて満たすことを確認してください。機能要件、タスクを削除した場合、「タスクを削除しました」というフラッシュメッセージを表示させること()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('tasks.index');
+
+            $browser->clickLink('削除');
+            $browser->acceptDialog();
+
+            $browser->assertSee('タスクを削除しました');
+        });
+    }
 }
