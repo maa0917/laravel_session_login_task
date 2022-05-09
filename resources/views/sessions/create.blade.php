@@ -15,13 +15,13 @@
         @endif
 
         <p>
-            <label for=email">メールアドレス</label>
+            <label id="email-label" for=email">メールアドレス</label>
             <br>
             <input id="email" type="email" name="email" value="{{ old('email') }}">
         </p>
 
         <p>
-            <label for="password">パスワード</label>
+            <label id="password-label" for="password">パスワード</label>
             <br>
             <input id="password" type="password" name="password">
         </p>
