@@ -36,7 +36,7 @@ class TaskController extends Controller
      */
     public function store(StoreTaskRequest $request): RedirectResponse
     {
-        Task::create($request->all());
+        Auth::user()->tasks()->create($request->all());
 
         return redirect()->route('tasks.index')->with('notice', 'タスクを登録しました');
     }
