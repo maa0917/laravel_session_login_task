@@ -26,6 +26,6 @@
             <input id="password" type="password" name="password">
         </p>
 
-        <input id="create-session" type="submit" value="ログイン">
+        <button id="create-session">ログイン</button>
     </form>
 </x-layout>

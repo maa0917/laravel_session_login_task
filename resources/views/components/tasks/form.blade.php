@@ -27,5 +27,5 @@
                   rows="10">{{ old('content', $task->content ?? '') }}</textarea>
     </p>
 
-    <input class="actions" type="submit" value="{{ $submit }}">
+     <button>{{ $submit }}</button>
 </form>

@@ -34,5 +34,5 @@
         <input id="password_confirmation" type="password" name="password_confirmation">
     </p>
 
-    <input type="submit" value="{{ $submit }}">
+    <button>{{ $submit }}</button>
 </form>
