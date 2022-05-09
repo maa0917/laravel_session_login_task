@@ -14,8 +14,8 @@ Route::resource('users', UserController::class)
     ->middleware('guest');
 Route::resource('users', UserController::class)
     ->only('show', 'update', 'destroy', 'edit')
-    ->middleware('auth')
-    ->middleware('current.user');
+    ->middleware('current.user')
+    ->middleware('auth');
 
 Route::delete('sessions/{session}', [SessionController::class, 'destroy'])
     ->middleware('auth')
