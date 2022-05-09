@@ -19,7 +19,7 @@
     <p>
         <label for=Email">メールアドレス</label>
         <br>
-        <input id="email" type="text" name="email" value="{{ old('email', $user->email ?? '') }}">
+        <input id="email" type="email" name="email" value="{{ old('email', $user->email ?? '') }}">
     </p>
 
     <p>

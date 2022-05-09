@@ -17,7 +17,7 @@
         <p>
             <label for=email">メールアドレス</label>
             <br>
-            <input id="email" type="text" name="email" value="{{ old('email') }}">
+            <input id="email" type="email" name="email" value="{{ old('email') }}">
         </p>
 
         <p>
