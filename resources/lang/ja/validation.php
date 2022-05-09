@@ -145,18 +145,8 @@ return [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
-        'name' => [
-            'required' => '名前を入力してください',
-        ],
         'email' => [
-            'required' => 'メールアドレスを入力してください',
             'unique' => 'メールアドレスはすでに使用されています',
-        ],
-        'password' => [
-            'required' => 'パスワードを入力してください',
-        ],
-        'min' => [
-            'string' => ':attribute :min ',
         ],
     ],
 
@@ -172,9 +162,11 @@ return [
     */
 
     'attributes' => [
+        'content' => '内容',
+        'email' => 'メールアドレス',
+        'name' => '名前',
         'password' => 'パスワード',
         'title' => 'タイトル',
-        'content' => '内容',
     ],
 
 ];
