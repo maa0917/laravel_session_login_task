@@ -4,7 +4,6 @@ namespace Tests\Browser;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Support\Facades\Auth;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
 
@@ -198,6 +197,240 @@ class BrowserTest extends DuskTestCase
             $browser->press('#create-session');
 
             $browser->assertSee('ログインページ');
+        });
+    }
+
+    /**
+     * 画面遷移要件
+     * @test
+     */
+    public function ログイン中の場合、要件通りにパスのプレフィックスが使用できること()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+
+            $browser->visitRoute('users.show', $this->user);
+            $browser->assertPathIs("/users/{$this->user->id}");
+
+            $browser->visitRoute('users.edit', $this->user);
+            $browser->assertPathIs("/users/{$this->user->id}/edit");
+        });
+    }
+
+    /**
+     * 画面設計要件
+     * @test
+     */
+    public function ログイン中の場合、要件通りにHTMLのid属性やclass属性が付与されていること、グローバルナビゲーション()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('/');
+
+            $browser->assertPresent('#my-account');
+            $browser->assertPresent('#sign-out');
+            $browser->assertPresent('#tasks-index');
+            $browser->assertPresent('#new-task');
+            $browser->assertMissing('#sign-up');
+            $browser->assertMissing('#sign-in');
+        });
+    }
+
+    /**
+     * 画面設計要件
+     * @test
+     */
+    public function ログイン中の場合、要件通りにHTMLのid属性やclass属性が付与されていること、アカウント詳細画面()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('users.show', $this->user);
+
+            $browser->assertPresent('#edit-user');
+            $browser->assertPresent('#destroy-user');
+        });
+    }
+
+    /**
+     * 画面設計要件
+     * @test
+     */
+    public function ログイン中の場合、要件通りにHTMLのid属性やclass属性が付与されていること、アカウント編集画面()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('users.edit', $this->user);
+
+            $browser->assertPresent('#back');
+        });
+    }
+
+    /**
+     * 画面要件
+     * @test
+     */
+    public function ログイン中の場合、要件通りに各画面に文字やリンク、ボタンを表示すること、グローバルナビゲーション()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('/');
+
+            $browser->assertSeeLink('タスク一覧');
+            $browser->assertSeeLink('タスクを登録する');
+            $browser->assertSeeLink('アカウント');
+            $browser->assertSeeLink('ログアウト');
+        });
+    }
+
+    /**
+     * 画面要件
+     * @test
+     */
+    public function ログイン中の場合、要件通りに各画面に文字やリンク、ボタンを表示すること、アカウント詳細画面()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('users.show', $this->user);
+
+            $browser->assertSee('アカウント詳細ページ');
+            $browser->assertSee('名前');
+            $browser->assertSee('メールアドレス');
+            $browser->assertSeeLink('編集');
+            $browser->assertSeeLink('削除');
+        });
+    }
+
+    /**
+     * 画面要件
+     * @test
+     */
+    public function ログイン中の場合、要件通りに各画面に文字やリンク、ボタンを表示すること、アカウント編集画面()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('users.edit', $this->user);
+
+            $browser->assertSee('アカウント編集ページ');
+            $browser->assertSeeIn('#name-label', '名前');
+            $browser->assertSeeIn('#email-label', 'メールアドレス');
+            $browser->assertSeeIn('#password-label', 'パスワード');
+            $browser->assertSeeIn('#password-confirmation-label', 'パスワード（確認）');
+            $browser->assertSeeIn('#submit-button', '更新する');
+            $browser->assertSeeLink('戻る');
+        });
+    }
+
+    /**
+     * 画面遷移要件
+     * @test
+     */
+    public function ログイン中の場合、画面遷移図通りに遷移させること、グローバルナビゲーションのリンクを要件通りに遷移させること()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('/');
+
+            $browser->clickLink('タスク一覧');
+            $browser->assertSee('タスク一覧ページ');
+
+            $browser->clickLink('タスクを登録する');
+            $browser->assertSee('タスク登録ページ');
+
+            $browser->clickLink('アカウント');
+            $browser->assertSee('アカウント詳細ページ');
+
+            $browser->clickLink('ログアウト');
+            $browser->assertSee('ログインページ');
+        });
+    }
+
+    /**
+     * 画面遷移要件
+     * @test
+     */
+    public function ログイン中の場合、画面遷移図通りに遷移させること、アカウント詳細画面の「編集」をクリックした場合、ページタイトルに「アカウント編集ページ」が表示される()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('users.show', $this->user);
+
+            $browser->clickLink('編集');
+            $browser->assertSee('アカウント編集ページ');
+
+        });
+    }
+
+    /**
+     * 画面遷移要件
+     * @test
+     */
+    public function ログイン中の場合、画面遷移図通りに遷移させること、アカウント詳細画面の「削除」をクリックした場合、ページタイトルに「ログインページ」が表示される()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('users.show', $this->user);
+
+            $browser->clickLink('削除');
+            $browser->assertDialogOpened('本当に削除してもよろしいですか？');
+
+            $browser->acceptDialog();
+            $browser->assertSee('ログインページ');
+        });
+    }
+
+    /**
+     * 画面遷移要件
+     * @test
+     */
+    public function ログイン中の場合、画面遷移図通りに遷移させること、アカウントの編集に成功した場合、ページタイトルに「アカウント詳細ページ」が表示される()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('users.edit', $this->user);
+
+            $browser->value('#name', 'edit_user_name');
+            $browser->value('#email', 'edit_user@email.com');
+            $browser->value('#password', 'edit_password');
+            $browser->value('#password_confirmation', 'edit_password');
+            $browser->press('#submit-button');
+
+            $browser->assertSee('アカウント詳細ページ');
+        });
+    }
+
+    /**
+     * 画面遷移要件
+     * @test
+     */
+    public function ログイン中の場合、画面遷移図通りに遷移させること、アカウントの編集に失敗した場合、ページタイトルに「アカウント編集ページ」が表示される()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('users.edit', $this->user);
+
+            $browser->value('#name', '');
+            $browser->value('#email', '');
+            $browser->value('#password', '');
+            $browser->value('#password_confirmation', '');
+            $browser->press('#submit-button');
+
+            $browser->assertSee('アカウント編集ページ');
+        });
+    }
+
+    /**
+     * 画面遷移要件
+     * @test
+     */
+    public function ログイン中の場合、画面遷移図通りに遷移させること、アカウント編集画面の「戻る」をクリックした場合、ページタイトルに「アカウント詳細ページ」が表示される()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->loginAs($this->user);
+            $browser->visitRoute('users.edit', $this->user);
+
+            $browser->clickLink('戻る');
+
+            $browser->assertSee('アカウント詳細ページ');
         });
     }
 }
