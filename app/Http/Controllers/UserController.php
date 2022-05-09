@@ -11,6 +11,8 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -59,6 +61,13 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
+        Validator::make($request->all(), [
+            'email' => [
+                'required',
+                Rule::unique('users')->ignore($user),
+            ],
+        ])->validated();
+
         $user->update($request->all());
 
         return redirect()->route('users.show', $user)->with('notice', 'アカウントを更新しました');
